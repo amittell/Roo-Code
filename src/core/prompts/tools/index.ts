@@ -9,6 +9,7 @@ import { getReadFileDescription } from "./read-file"
 import { getFetchInstructionsDescription } from "./fetch-instructions"
 import { getWriteToFileDescription } from "./write-to-file"
 import { getAppendToFileDescription } from "./append-to-file"
+import { getPrependToFileDescription } from "./prepend-to-file"
 import { getSearchFilesDescription } from "./search-files"
 import { getListFilesDescription } from "./list-files"
 import { getInsertContentDescription } from "./insert-content"
@@ -29,6 +30,7 @@ const toolDescriptionMap: Record<string, (args: ToolArgs) => string | undefined>
 	fetch_instructions: () => getFetchInstructionsDescription(),
 	write_to_file: (args) => getWriteToFileDescription(args),
 	append_to_file: (args) => getAppendToFileDescription(args),
+	prepend_to_file: (args) => getPrependToFileDescription(args),
 	search_files: (args) => getSearchFilesDescription(args),
 	list_files: (args) => getListFilesDescription(args),
 	list_code_definition_names: (args) => getListCodeDefinitionNamesDescription(args),
@@ -114,6 +116,7 @@ export {
 	getFetchInstructionsDescription,
 	getWriteToFileDescription,
 	getAppendToFileDescription,
+	getPrependToFileDescription,
 	getSearchFilesDescription,
 	getListFilesDescription,
 	getListCodeDefinitionNamesDescription,

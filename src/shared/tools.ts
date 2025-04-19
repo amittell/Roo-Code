@@ -89,6 +89,16 @@ export interface WriteToFileToolUse extends ToolUse {
 	params: Partial<Pick<Record<ToolParamName, string>, "path" | "content" | "line_count">>
 }
 
+export interface AppendToFileToolUse extends ToolUse {
+	name: "append_to_file"
+	params: Partial<Pick<Record<ToolParamName, string>, "path" | "content">>
+}
+
+export interface PrependToFileToolUse extends ToolUse {
+	name: "prepend_to_file"
+	params: Partial<Pick<Record<ToolParamName, string>, "path" | "content">>
+}
+
 export interface InsertCodeBlockToolUse extends ToolUse {
 	name: "insert_content"
 	params: Partial<Pick<Record<ToolParamName, string>, "path" | "operations">>
@@ -156,6 +166,7 @@ export const TOOL_DISPLAY_NAMES: Record<ToolName, string> = {
 	fetch_instructions: "fetch instructions",
 	write_to_file: "write files",
 	append_to_file: "append to files",
+	prepend_to_file: "prepend to files",
 	apply_diff: "apply changes",
 	search_files: "search files",
 	list_files: "list files",
@@ -179,7 +190,7 @@ export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
 		tools: ["read_file", "fetch_instructions", "search_files", "list_files", "list_code_definition_names"],
 	},
 	edit: {
-		tools: ["apply_diff", "write_to_file", "append_to_file", "insert_content", "search_and_replace"],
+		tools: ["apply_diff", "write_to_file", "append_to_file", "prepend_to_file", "insert_content", "search_and_replace"],
 	},
 	browser: {
 		tools: ["browser_action"],

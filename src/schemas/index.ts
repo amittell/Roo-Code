@@ -823,6 +823,7 @@ export const toolNames = [
 	"read_file",
 	"write_to_file",
 	"append_to_file",
+	"prepend_to_file",
 	"apply_diff",
 	"insert_content",
 	"search_and_replace",

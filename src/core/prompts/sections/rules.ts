@@ -14,7 +14,10 @@ function getEditingInstructions(diffStrategy?: DiffStrategy, experiments?: Recor
 		availableTools.push("write_to_file (for creating new files or complete file rewrites)")
 	}
 
-	availableTools.push("append_to_file (for appending content to the end of files)")
+	availableTools.push(
+		"append_to_file (for appending content to the end of files)",
+		"prepend_to_file (for prepending content to the beginning of files)"
+	)
 
 	if (experiments?.["insert_content"]) {
 		availableTools.push("insert_content (for adding lines to existing files)")
@@ -28,6 +31,7 @@ function getEditingInstructions(diffStrategy?: DiffStrategy, experiments?: Recor
 		instructions.push(
 			`- For editing files, you have access to these tools: ${availableTools.join(", ")}.`,
 			"- The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.",
+			"- The prepend_to_file tool adds content to the beginning of files, such as adding license headers or import statements. This tool will always add the content at the beginning of the file.",
 		)
 	}
 
