@@ -33,6 +33,16 @@ function getEditingInstructions(diffStrategy?: DiffStrategy, experiments?: Recor
 			"- The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.",
 			"- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content.",
 		)
+
+		// Enhanced tool selection guidance
+		instructions.push(
+			"- When deciding which tool to use for modifying existing files:",
+			"  * Use write_to_file for complete file rewrites or when creating new files from scratch",
+			"  * Use prepend_to_file when adding content that logically belongs at the top of a file (license headers, import/include statements, file-level documentation)",
+			"  * Use append_to_file when adding content that logically belongs at the end (new entries, log records, additional data points)",
+			"  * Use apply_diff or insert_content for targeted changes within the middle of a file",
+			"  * Use search_and_replace for pattern-based text replacements across the file",
+		)
 	}
 
 	// Additional details for experimental features

@@ -82,7 +82,10 @@ export async function prependToFileTool(
 
 			// If file exists, prepend newContent to existing content
 			if (fileExists && cline.diffViewProvider.originalContent) {
-				newContent = newContent + "\n" + cline.diffViewProvider.originalContent
+				// Optimize for empty files - don't add newline if the file is empty
+				newContent = cline.diffViewProvider.originalContent.length === 0
+					? newContent
+					: newContent + "\n" + cline.diffViewProvider.originalContent
 			}
 
 			// Editor is open, stream content in
@@ -119,7 +122,10 @@ export async function prependToFileTool(
 
 			// If file exists, prepend newContent to existing content
 			if (fileExists && cline.diffViewProvider.originalContent) {
-				newContent = newContent + "\n" + cline.diffViewProvider.originalContent
+				// Optimize for empty files - don't add newline if the file is empty
+				newContent = cline.diffViewProvider.originalContent.length === 0
+					? newContent
+					: newContent + "\n" + cline.diffViewProvider.originalContent
 			}
 
 			await cline.diffViewProvider.update(
