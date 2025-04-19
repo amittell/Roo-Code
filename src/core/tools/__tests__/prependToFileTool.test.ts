@@ -178,6 +178,72 @@ describe("prependToFileTool", () => {
 			expect(mockAskApproval).toHaveBeenCalled()
 			expect(mockFileContextTracker.trackFileContext).toHaveBeenCalledWith("test.txt", "roo_edited")
 		})
+
+		it("should prepend license headers properly", async () => {
+			// Setup
+			mockDiffViewProvider.editType = "modify"
+			mockDiffViewProvider.originalContent = "function main() {\n  console.log('Hello world');\n}"
+			mockToolUse.params.content = "/**\n * Copyright (c) 2025 Roo Code\n * License: MIT\n */\n"
+
+			// Execute
+			await prependToFileTool(
+				mockCline as unknown as Cline,
+				mockToolUse,
+				mockAskApproval as unknown as AskApproval,
+				mockHandleError as unknown as HandleError,
+				mockPushToolResult as unknown as PushToolResult,
+				mockRemoveClosingTag as unknown as RemoveClosingTag,
+			)
+
+			// Verify
+			expect(mockDiffViewProvider.update).toHaveBeenCalledWith(
+				"/**\n * Copyright (c) 2025 Roo Code\n * License: MIT\n */\n\nfunction main() {\n  console.log('Hello world');\n}", 
+				true
+			)
+		})
+
+		it("should handle prepending to empty files", async () => {
+			// Setup
+			mockDiffViewProvider.editType = "modify"
+			mockDiffViewProvider.originalContent = ""
+			mockToolUse.params.content = "// New content"
+
+			// Execute
+			await prependToFileTool(
+				mockCline as unknown as Cline,
+				mockToolUse,
+				mockAskApproval as unknown as AskApproval,
+				mockHandleError as unknown as HandleError,
+				mockPushToolResult as unknown as PushToolResult,
+				mockRemoveClosingTag as unknown as RemoveClosingTag,
+			)
+
+			// Verify
+			expect(mockDiffViewProvider.update).toHaveBeenCalledWith("// New content", true)
+		})
+
+		it("should handle different line endings correctly", async () => {
+			// Setup
+			mockDiffViewProvider.editType = "modify"
+			mockDiffViewProvider.originalContent = "existing content\r\nwith CRLF endings"
+			mockToolUse.params.content = "new content"
+
+			// Execute
+			await prependToFileTool(
+				mockCline as unknown as Cline,
+				mockToolUse,
+				mockAskApproval as unknown as AskApproval,
+				mockHandleError as unknown as HandleError,
+				mockPushToolResult as unknown as PushToolResult,
+				mockRemoveClosingTag as unknown as RemoveClosingTag,
+			)
+
+			// Verify
+			expect(mockDiffViewProvider.update).toHaveBeenCalledWith(
+				"new content\nexisting content\r\nwith CRLF endings", 
+				true
+			)
+		})
 	})
 
 	describe("Content preprocessing", () => {

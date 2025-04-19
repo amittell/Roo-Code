@@ -31,7 +31,7 @@ function getEditingInstructions(diffStrategy?: DiffStrategy, experiments?: Recor
 		instructions.push(
 			`- For editing files, you have access to these tools: ${availableTools.join(", ")}.`,
 			"- The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.",
-			"- The prepend_to_file tool adds content to the beginning of files, such as adding license headers or import statements. This tool will always add the content at the beginning of the file.",
+			"- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content.",
 		)
 	}
 

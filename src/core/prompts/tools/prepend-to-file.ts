@@ -14,12 +14,28 @@ Your content to prepend here
 </content>
 </prepend_to_file>
 
-Example: Requesting to prepend to a file
+Example: Requesting to prepend a license header
 <prepend_to_file>
-<path>src/scripts/config.js</path>
+<path>src/index.js</path>
 <content>
-// Configuration file - updated on 2024-04-18
-// Add license notice at the top
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
 </content>
 </prepend_to_file>`
 }
