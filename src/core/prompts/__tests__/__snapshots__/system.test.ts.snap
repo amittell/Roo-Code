@@ -201,6 +201,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## execute_command
 Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Prefer relative commands and paths that avoid location sensitivity for terminal consistency, e.g: \`touch ./testdata/example.file\`, \`dir ./examples/model1/data/yaml\`, or \`go test ./cmd/front --config ./cmd/front/config.yml\`. If directed by the user, you may open a terminal in a different directory by using the \`cwd\` parameter.
 Parameters:
@@ -361,8 +399,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
@@ -623,6 +662,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## insert_content
 Description: Inserts content at specific line positions in a file. This is the primary tool for adding new content and code (functions/methods/classes, imports, attributes etc.) as it allows for precise insertions without overwriting existing content. The tool uses an efficient line-based insertion system that maintains file integrity and proper ordering of multiple insertions. Beware to use the proper indentation. This tool is the preferred way to add new content and code to files.
 Parameters:
@@ -868,8 +945,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), insert_content (for adding lines to existing files), search_and_replace (for finding and replacing individual pieces of text).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files), insert_content (for adding lines to existing files), search_and_replace (for finding and replacing individual pieces of text).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - The insert_content tool adds lines of text to files, such as adding a new function to a JavaScript file or inserting a new route in a Python file. This tool will insert it at the specified line location. It can support multiple operations at once.
 - The search_and_replace tool finds and replaces text or regex in files. This tool allows you to search for a specific regex pattern or text and replace it with another value. Be cautious when using this tool to ensure you are replacing the correct text. It can support multiple operations at once.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
@@ -1132,6 +1210,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## search_and_replace
 Description: Request to perform search and replace operations on a file. Each operation can specify a search pattern (string or regex) and replacement text, with optional line range restrictions and regex flags. Shows a diff preview before applying changes.
 Parameters:
@@ -1342,8 +1458,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), search_and_replace (for finding and replacing individual pieces of text).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files), search_and_replace (for finding and replacing individual pieces of text).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - The search_and_replace tool finds and replaces text or regex in files. This tool allows you to search for a specific regex pattern or text and replace it with another value. Be cautious when using this tool to ensure you are replacing the correct text. It can support multiple operations at once.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
@@ -1605,6 +1722,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## execute_command
 Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Prefer relative commands and paths that avoid location sensitivity for terminal consistency, e.g: \`touch ./testdata/example.file\`, \`dir ./examples/model1/data/yaml\`, or \`go test ./cmd/front --config ./cmd/front/config.yml\`. If directed by the user, you may open a terminal in a different directory by using the \`cwd\` parameter.
 Parameters:
@@ -1765,8 +1920,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
@@ -2027,6 +2183,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## execute_command
 Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Prefer relative commands and paths that avoid location sensitivity for terminal consistency, e.g: \`touch ./testdata/example.file\`, \`dir ./examples/model1/data/yaml\`, or \`go test ./cmd/front --config ./cmd/front/config.yml\`. If directed by the user, you may open a terminal in a different directory by using the \`cwd\` parameter.
 Parameters:
@@ -2187,8 +2381,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
@@ -2449,6 +2644,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## execute_command
 Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Prefer relative commands and paths that avoid location sensitivity for terminal consistency, e.g: \`touch ./testdata/example.file\`, \`dir ./examples/model1/data/yaml\`, or \`go test ./cmd/front --config ./cmd/front/config.yml\`. If directed by the user, you may open a terminal in a different directory by using the \`cwd\` parameter.
 Parameters:
@@ -2609,8 +2842,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
@@ -2871,6 +3105,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## browser_action
 Description: Request to interact with a Puppeteer-controlled browser. Every action, except \`close\`, will be responded to with a screenshot of the browser's current state, along with any new console logs. You may only perform one browser action per message, and wait for the user's response including a screenshot and logs to determine the next action.
 - The sequence of actions **must always start with** launching the browser at a URL, and **must always end with** closing the browser. If you need to visit a new URL that is not possible to navigate to from the current webpage, you must first close the browser, then launch again at the new URL.
@@ -3086,8 +3358,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
@@ -3349,6 +3622,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## execute_command
 Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Prefer relative commands and paths that avoid location sensitivity for terminal consistency, e.g: \`touch ./testdata/example.file\`, \`dir ./examples/model1/data/yaml\`, or \`go test ./cmd/front --config ./cmd/front/config.yml\`. If directed by the user, you may open a terminal in a different directory by using the \`cwd\` parameter.
 Parameters:
@@ -3577,8 +3888,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
@@ -3839,6 +4151,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## browser_action
 Description: Request to interact with a Puppeteer-controlled browser. Every action, except \`close\`, will be responded to with a screenshot of the browser's current state, along with any new console logs. You may only perform one browser action per message, and wait for the user's response including a screenshot and logs to determine the next action.
 - The sequence of actions **must always start with** launching the browser at a URL, and **must always end with** closing the browser. If you need to visit a new URL that is not possible to navigate to from the current webpage, you must first close the browser, then launch again at the new URL.
@@ -4054,8 +4404,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
@@ -4407,6 +4758,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## execute_command
 Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Prefer relative commands and paths that avoid location sensitivity for terminal consistency, e.g: \`touch ./testdata/example.file\`, \`dir ./examples/model1/data/yaml\`, or \`go test ./cmd/front --config ./cmd/front/config.yml\`. If directed by the user, you may open a terminal in a different directory by using the \`cwd\` parameter.
 Parameters:
@@ -4567,8 +4956,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using apply_diff or write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: apply_diff (for replacing lines in existing files), write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: apply_diff (for replacing lines in existing files), write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
@@ -4829,6 +5219,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## execute_command
 Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Prefer relative commands and paths that avoid location sensitivity for terminal consistency, e.g: \`touch ./testdata/example.file\`, \`dir ./examples/model1/data/yaml\`, or \`go test ./cmd/front --config ./cmd/front/config.yml\`. If directed by the user, you may open a terminal in a different directory by using the \`cwd\` parameter.
 Parameters:
@@ -4989,8 +5417,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
@@ -5293,6 +5722,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## execute_command
 Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Prefer relative commands and paths that avoid location sensitivity for terminal consistency, e.g: \`touch ./testdata/example.file\`, \`dir ./examples/model1/data/yaml\`, or \`go test ./cmd/front --config ./cmd/front/config.yml\`. If directed by the user, you may open a terminal in a different directory by using the \`cwd\` parameter.
 Parameters:
@@ -5515,8 +5982,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
@@ -5792,6 +6260,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## ask_followup_question
 Description: Ask the user a question to gather additional information needed to complete the task. This tool should be used when you encounter ambiguities, need clarification, or require more details to proceed effectively. It allows for interactive problem-solving by enabling direct communication with the user. Use this tool judiciously to maintain a balance between gathering necessary information and avoiding excessive back-and-forth.
 Parameters:
@@ -5930,8 +6436,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
@@ -6284,8 +6791,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
@@ -6579,6 +7087,44 @@ Example: Requesting to append to a log file
 </content>
 </append_to_file>
 
+## prepend_to_file
+Description: Request to prepend content to a file at the specified path. If the file exists, the content will be added to the beginning of the file. If the file doesn't exist, it will be created with the provided content. This tool will automatically create any directories needed to write the file.
+Parameters:
+- path: (required) The path of the file to prepend to (relative to the current workspace directory /test/path)
+- content: (required) The content to prepend to the file. The content will be added at the beginning of the existing file content. Do NOT include line numbers in the content.
+Usage:
+<prepend_to_file>
+<path>File path here</path>
+<content>
+Your content to prepend here
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend a license header
+<prepend_to_file>
+<path>src/index.js</path>
+<content>
+/**
+ * Copyright (c) 2025 Roo Veterinary Inc.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+</content>
+</prepend_to_file>
+
+Example: Requesting to prepend import statements
+<prepend_to_file>
+<path>src/components/Button.js</path>
+<content>
+import React from 'react';
+import PropTypes from 'prop-types';
+import './Button.css';
+
+</content>
+</prepend_to_file>
+
 ## execute_command
 Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Prefer relative commands and paths that avoid location sensitivity for terminal consistency, e.g: \`touch ./testdata/example.file\`, \`dir ./examples/model1/data/yaml\`, or \`go test ./cmd/front --config ./cmd/front/config.yml\`. If directed by the user, you may open a terminal in a different directory by using the \`cwd\` parameter.
 Parameters:
@@ -6807,8 +7353,9 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
-- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files).
+- For editing files, you have access to these tools: write_to_file (for creating new files or complete file rewrites), append_to_file (for appending content to the end of files), prepend_to_file (for prepending content to the beginning of files).
 - The append_to_file tool adds content to the end of files, such as appending new log entries or adding new data records. This tool will always add the content at the end of the file.
+- The prepend_to_file tool adds content to the beginning of files, such as adding license headers, import statements, or configuration headers. This tool will always add the content at the beginning of the file, before any existing content. Use this tool when adding content that logically belongs at the top of a file.
 - You should always prefer using other editing tools over write_to_file when making changes to existing files since write_to_file is much slower and cannot handle large files.
 - When using the write_to_file tool to modify a file, use the tool directly with the desired content. You do not need to display the content before using the tool. ALWAYS provide the COMPLETE file content in your response. This is NON-NEGOTIABLE. Partial updates or placeholders like '// rest of code unchanged' are STRICTLY FORBIDDEN. You MUST include ALL parts of the file, even if they haven't been modified. Failure to do so will result in incomplete or broken code, severely impacting the user's project.
 - Some modes have restrictions on which files they can edit. If you attempt to edit a restricted file, the operation will be rejected with a FileRestrictionError that will specify which file patterns are allowed for the current mode.
